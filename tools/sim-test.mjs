@@ -108,6 +108,7 @@ function playFloor(index) {
   let fleeTicks = 0;
   let waitTicks = 0;
   let smokedThisChase = false;
+  let bellUsed = false;
   const maxTicks = 30 * 240; // 4 minutes of sim time per floor
   while (g.status === 'playing' && ticks < maxTicks) {
     ticks += 1;
@@ -162,6 +163,12 @@ function playFloor(index) {
         // Wait for the patrol / beam to pass — unless a warden is closing in,
         // in which case standing still is worse than moving.
         waitTicks += 1;
+        if (waitTicks === 150 && !bellUsed && g.player.gadgets.bells > 0) {
+          // Stuck behind a patrol for 5s: ring the bell and every guard
+          // marches to the far corner, opening the corridor.
+          input.ringBell = true;
+          bellUsed = true;
+        }
         if (waitTicks > 300) {
           const detour = bfsPath(g.floor, g.player.x, g.player.y, dest.x, dest.y, g.guards);
           if (detour) { path = detour; pathTarget = destKey; }
